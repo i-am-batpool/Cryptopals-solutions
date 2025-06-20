@@ -1,3 +1,5 @@
+import requests
+
 def scoreText(text):
     score_table = {
         'a': 9, 'b': 2, 'c': 4, 'd': 5, 'e': 14, 'f': 3, 'g': 3,
@@ -13,13 +15,13 @@ def scoreText(text):
             score += 2
         elif c in '`@#$%^*()/+[]|"':
             score+=1
-        else:           #punishes the unusual characters
+        else:
             score-=200
     return score
-#this scoreText function has been written considering the use case in mind. Since we will be doing XOR with another byte, other than the correct deciphered text, most will have 
-#lots of unusual characters leading to a lower score. The score_table does relate to frequency but that is not the main reason my scoreText function is working in this scenario
-#in case of a general scoreText function a better written score_table with more accurate frequencies and vector dot product analysis can be used to get accurate predictions but
-#here this simple scoreText function based on a simple idea should fulfill our purpose so I will be using this only.
+#this scoreText function has been written considering the use case in mind. The score_table does relate to frequency but that is not the main reason my scoreText function is 
+#working in this scenario. In case of a general scoreText function a better written score_table with more accurate frequencies and vector dot product analysis can be used to get 
+#accurate predictions but here this simple scoreText function based on a simple idea should fulfill our purpose so I will be using this only.
+
 
 def decryptHex(encr_hex):
     by=bytes.fromhex(encr_hex)
@@ -38,5 +40,19 @@ def decryptHex(encr_hex):
             key=i
     return (max_str, key)
 
-encr_hex="1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
-print("Answer is:", decryptHex(encr_hex)[0])
+
+
+url="https://cryptopals.com/static/challenge-data/4.txt"
+response=requests.get(url)
+lines=response.text.splitlines()
+decrypted=[]
+for line in lines:
+    decrHex=decryptHex(line)
+    decrypted.append((scoreText(decrHex[0]), decrHex[0]))
+decrypted.sort(reverse=True)
+print("Possible answers are:")
+print(decrypted[0][1])
+print(decrypted[1][1])
+print(decrypted[2][1])
+print("Most probable answer is:")
+print(decrypted[0][1])
